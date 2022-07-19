@@ -24,7 +24,7 @@ router.post('/', (req, res, next) => {
       return res.status(500).send({ error: error })
     }
     conn.query(
-      'INSERT INTO produto (nome,preco) VALUES (?, ?)',
+      'INSERT INTO produtos (nome,preco) VALUES (?, ?)',
       [req.body.nome, req.body.preco],
       (error, resultado, field) => {
         // liberar o pool pra não estourar o limite de conexões
@@ -69,10 +69,8 @@ router.patch('/', (req, res, next) => {
       return res.status(500).send({ error: error })
     }
     conn.query(
-      `UPDATE produtos
-                SET nome = ?
-                    preco = ?
-                WHERE id_produto = ?`,
+      `UPDATE produtos SET nome = ?, preco = ?
+                      WHERE id_produto = ?`,
       [req.body.nome, req.body.preco, req.body.id_produto],
       (error, resultado, field) => {
         // liberar o pool pra não estourar o limite de conexões
