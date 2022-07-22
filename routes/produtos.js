@@ -34,43 +34,6 @@ router.get('/', (req, res, next) => {
   })
 })
 
-// INSERE UM PRODUTO
-router.post('/', (req, res, next) => {
-  mysql.getConnection((error, conn) => {
-    if (error) {
-      return res.status(500).send({ error: error })
-    }
-    conn.query(
-      'INSERT INTO produtos (nome,preco) VALUES (?, ?)',
-      [req.body.nome, req.body.preco],
-      (error, result, field) => {
-        // liberar o pool pra não estourar o limite de conexões
-        conn.release()
-
-        if (error) {
-          return res.status(500).send({ error: error })
-        }
-
-        const response = {
-          mensagem: 'Produto inserido com sucesso!',
-          prdutoCriado: {
-            id_produto: result.id_produto,
-            nome: req.body.nome,
-            preco: req.body.preco,
-            request: {
-              tipo: 'POST',
-              descricao: 'Insere um produto',
-              URL: 'http://localhost:3001/produtos/'
-            }
-          }
-        }
-
-        return res.status(201).send(response)
-      }
-    )
-  })
-})
-
 // RETORNA OS DADOS DE UM PRODUTO
 router.get('/:id_produto', (req, res, next) => {
   mysql.getConnection((error, conn) => {
@@ -105,6 +68,43 @@ router.get('/:id_produto', (req, res, next) => {
         }
 
         return res.status(200).send(response)
+      }
+    )
+  })
+})
+
+// INSERE UM PRODUTO
+router.post('/', (req, res, next) => {
+  mysql.getConnection((error, conn) => {
+    if (error) {
+      return res.status(500).send({ error: error })
+    }
+    conn.query(
+      'INSERT INTO produtos (nome,preco) VALUES (?, ?)',
+      [req.body.nome, req.body.preco],
+      (error, result, field) => {
+        // liberar o pool pra não estourar o limite de conexões
+        conn.release()
+
+        if (error) {
+          return res.status(500).send({ error: error })
+        }
+
+        const response = {
+          mensagem: 'Produto inserido com sucesso!',
+          prdutoCriado: {
+            id_produto: result.id_produto,
+            nome: req.body.nome,
+            preco: req.body.preco,
+            request: {
+              tipo: 'POST',
+              descricao: 'Insere um produto',
+              URL: 'http://localhost:3001/produtos/'
+            }
+          }
+        }
+
+        return res.status(201).send(response)
       }
     )
   })
@@ -150,39 +150,51 @@ router.patch('/', (req, res, next) => {
 
 // EXCLUI UM PRODUTO
 router.delete('/', (req, res, next) => {
-  mysql.getConnection((error, conn) => {
-    if (error) {
-      return res.status(500).send({ error: error })
-    }
-    conn.query(
-      `DELETE FROM produtos
-                WHERE id_produto = ?`,
-      [req.body.id_produto],
-      (error, result, field) => {
-        // liberar o pool pra não estourar o limite de conexões
-        conn.release()
-
+    mysql.getConnection((error, conn) => {
         if (error) {
-          return res.status(500).send({ error: error })
+            return res.status(500).send({ error: error })
         }
 
-        const response = {
-          mensagem: 'Produto removido com sucesso!',
-          request: {
-            tipo: 'DELETE',
-            descricao: `Produto ${req.body.id_produto} excluído`,
-            url: 'http://localhost:3001/produtos/',
-            body: {
-              nome: 'String',
-              preco: 'Number'
+        // TESTA SE EXISTE O ID_PRODUTO PARA A EXCLUSÃO
+        conn.query('SELECT * FROM produtos WHERE id_produto = ?', [req.body.id_produto], 
+        (error, result, field) => {
+
+            if (error) { return res.status(500).send({ error: error }) }
+            if (result.length == 0) {
+                return res.status(404).send({
+                    mensagem: 'Produto não existente'
+                })
             }
-          }
-        }
+        
+            conn.query(
+            `DELETE FROM produtos
+                        WHERE id_produto = ?`,
+            [req.body.id_produto],
+            (error, result, field) => {
+                // liberar o pool pra não estourar o limite de conexões
+                conn.release()
 
-        res.status(202).send(response)
-      }
-    )
-  })
+                if (error) {
+                    return res.status(500).send({ error: error })
+                }
+
+                const response = {
+                mensagem: 'Produto removido com sucesso!',
+                request: {
+                    tipo: 'DELETE',
+                    descricao: `Produto ${req.body.id_produto} excluído`,
+                    url: 'http://localhost:3001/produtos/',
+                    body: {
+                        nome: 'String',
+                        preco: 'Number'
+                        }
+                    }
+                }
+
+                res.status(202).send(response)
+            })
+        })
+    })
 })
 
 module.exports = router

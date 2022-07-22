@@ -36,51 +36,51 @@ router.get('/', (req, res, next) => {
 
 // INSERE UM PEDIDO
 router.post('/', (req, res, next) => {
-  mysql.getConnection((error, conn) => {
-    if (error) { return res.status(500).send({ error: error }) }
+    mysql.getConnection((error, conn) => {
+        if (error) { return res.status(500).send({ error: error }) }
 
-    // TESTA SE EXISTE O PRODUTO PARA ESSE PEDIDO
-    conn.query('SELECT * FROM produtos WHERE id_produto = ?', [req.body.id_produto], 
-    (error, result, field) => {
-
-      if (error) { return res.status(500).send({ error: error }) }
-      if (result.length == 0) {
-        return res.status(404).send({
-          mensagem: 'Produto não existente'
-        })
-      }
-
-      // SE NÃO EXISTE PEDIDO, FAZ O CADASTRO
-      conn.query(
-        'INSERT INTO pedidos (produtos_id_produto,quantidade) VALUES (?, ?)',
-        [req.body.produtos_id_produto, req.body.quantidade],
+        // TESTA SE EXISTE O PRODUTO PARA ESSE PEDIDO
+        conn.query('SELECT * FROM produtos WHERE id_produto = ?', [req.body.id_produto], 
         (error, result, field) => {
-          // liberar o pool pra não estourar o limite de conexões
-          conn.release()
-  
-          if (error) {
-            return res.status(500).send({ error: error })
-          }
-  
-          const response = {
-            mensagem: 'Produto inserido com sucesso!',
-            produtoCriado: {
-              id_pedido: result.id_pedido,
-              produtos_id_produto: req.body.produtos_id_produto,
-              quantidade: req.body.quantidade,
-              request: {
-                tipo: 'POST',
-                descricao: 'Insere um produto',
-                URL: 'http://localhost:3001/produtos/'
-              }
+
+            if (error) { return res.status(500).send({ error: error }) }
+            if (result.length == 0) {
+                return res.status(404).send({
+                    mensagem: 'Produto não existente'
+                })
             }
-          }
-  
-          return res.status(201).send(response)
-        }
-      )
+
+            // SE NÃO EXISTE PEDIDO, FAZ O CADASTRO
+                conn.query(
+                'INSERT INTO pedidos (produtos_id_produto,quantidade) VALUES (?, ?)',
+                [req.body.produtos_id_produto, req.body.quantidade],
+                (error, result, field) => {
+                    // liberar o pool pra não estourar o limite de conexões
+                    conn.release()
+            
+                    if (error) {
+                    return res.status(500).send({ error: error })
+                    }
+            
+                    const response = {
+                    mensagem: 'Produto inserido com sucesso!',
+                        produtoCriado: {
+                            id_pedido: result.id_pedido,
+                            produtos_id_produto: req.body.produtos_id_produto,
+                            quantidade: req.body.quantidade,
+                            request: {
+                            tipo: 'POST',
+                            descricao: 'Insere um produto',
+                            URL: 'http://localhost:3001/produtos/'
+                            }
+                        }
+                    }
+            
+                    return res.status(201).send(response)
+                }
+            )
+        })
     })
-  })
 })
 
 // RETORNA OS DADOS DE UM PEDIDO
