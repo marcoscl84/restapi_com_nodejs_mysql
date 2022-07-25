@@ -10,6 +10,9 @@ const { application } = require('express');
 // MONITORA EXECUÇÃO DAS ROTAS E DEVOLVE UM LOG NO CONSOLE
 app.use(morgan('dev'));
 
+// DISPONIBILIZA PUBLICAMENTE A PASTA UPLOADS
+app.use('/uploads', express.static('./uploads'));
+
 application.use(bodyParser.urlencoded({ extended: false })); // aceita apenas dados simples
 app.use(bodyParser.json()); // json de entrada do body
 
