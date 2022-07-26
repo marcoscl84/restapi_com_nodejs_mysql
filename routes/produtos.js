@@ -4,7 +4,7 @@ const mysql = require('../mysql').pool;
 const multer = require('multer'); // middleware for handling multipart/form-data , which is primarily used for uploading files
 
 // DEFINIÇÃO NOVO NOME ARQUIVO PARA O UPLOAD COM A EXTENSÃO E O DESTINO
-const storage = multer.diskStorage({
+/*const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, './uploads/');
     },
@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
         cb(null, new Date().toISOString() + file.originalname);
     }
 })
-/*const fileFilter = (req, file, cb) => {
+const fileFilter = (req, file, cb) => {
     if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png'){
         cb(null, true);
     } else {
@@ -26,6 +26,7 @@ const upload = multer({
     },
     fileFilter: fileFilter
 });*/
+//const upload = multer({ storage: storage });
 const upload = multer({ dest: 'uploads/' });
 
 // RETORNA TODOS OS PRODUTOS
