@@ -59,7 +59,7 @@ router.post('/login', (req, res, next) => {
             
             // VERIFICA SE TEM REGISTRO
             if(results.length < 1){
-                return res.status(401).send({ mensagem: 'Falha na autenticação' }) // mensagem de "email não encontrado (404)" é brecha de segurança dando pistas para ataque de força bruta
+                return res.status(401).send({ mensagem: 'Usuário inexistente' }) // mensagem de "email não encontrado (404)" é brecha de segurança dando pistas para ataque de força bruta
             }
             
             // VERIFICA SE SENHA ESTÁ CORRETA
@@ -89,5 +89,33 @@ router.post('/login', (req, res, next) => {
     })
 })
 // client -> API login -> retorna token -> client armazena o token para manter-se logado
+
+
+
+// MOSTRA TODOS OS USUÁRIOS CADASTRADOS
+router.get('/', (req, res, next) => {
+    mysql.getConnection((error, conn) => {
+        if (error) {
+            return res.status(500).send({ error: error })
+        }
+        conn.query('SELECT * FROM usuarios', (error, result, fields) => {
+        if (error) {
+            return res.status(500).send({ error: error })
+        }
+
+        const response = {
+            usuarios: result.map(usuario => {
+                return {
+                    id: usuario.id_usuario,
+                    email: usuario.email,
+                    senha: '*****'
+                }
+            })
+        }
+
+        return res.status(200).send({ response })
+        })
+    })
+})
 
 module.exports = router; 

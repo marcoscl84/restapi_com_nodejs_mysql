@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('../mysql').pool;
 const multer = require('multer'); // middleware for handling multipart/form-data , which is primarily used for uploading files
+const login = require('../middleware/login');
 
 // DEFINIÇÃO NOVO NOME ARQUIVO PARA O UPLOAD COM A EXTENSÃO E O DESTINO
 /*const storage = multer.diskStorage({
@@ -103,8 +104,8 @@ router.get('/:id_produto', (req, res, next) => {
 })
 
 // INSERE UM PRODUTO
-router.post('/', upload.single('imagem_produto'), (req, res, next) => {
-    console.log(req.file)
+router.post('/',  login.obligatory, upload.single('imagem_produto'), (req, res, next) => {
+    console.log(req.usuario)
     mysql.getConnection((error, conn) => {
         if (error) {
             return res.status(500).send({ error: error })
@@ -146,7 +147,7 @@ router.post('/', upload.single('imagem_produto'), (req, res, next) => {
 })
 
 // ALTERA UM PRODUTO
-router.patch('/', (req, res, next) => {
+router.patch('/', login.obligatory, (req, res, next) => {
     mysql.getConnection((error, conn) => {
         if (error) {
         return res.status(500).send({ error: error })
@@ -184,7 +185,7 @@ router.patch('/', (req, res, next) => {
 })
 
 // EXCLUI UM PRODUTO
-router.delete('/', (req, res, next) => {
+router.delete('/', login.obligatory, (req, res, next) => {
     mysql.getConnection((error, conn) => {
         if (error) {
             return res.status(500).send({ error: error })
