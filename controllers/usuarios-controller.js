@@ -65,7 +65,7 @@ exports.loginUsuario = (req, res, next) => {
             bcrypt.compare(req.body.senha, results[0].senha, (err, result) => {
                 // VERIFICA ERRO NO BCRYPT
                 if(err){
-                    return res.status(401).send({ mensagem: 'Falha na autenticação' })
+                    return res.status(401).send({ mensagem: 'Falha na autenticação (bcrypt)' })
                 }
                 if(result){
                     const token = jwt.sign({
@@ -75,7 +75,7 @@ exports.loginUsuario = (req, res, next) => {
                         expiresIn: "1h" // expira em 1h
                     });
 
-
+                    // ENVIA PARA O FRONT
                     return res.status(200).send({ 
                         mensagem: 'Autenticado com sucesso',
                         token: token,
