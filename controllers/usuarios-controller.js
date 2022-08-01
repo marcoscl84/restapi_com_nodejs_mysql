@@ -78,7 +78,10 @@ exports.loginUsuario = (req, res, next) => {
 
                     return res.status(200).send({ 
                         mensagem: 'Autenticado com sucesso',
-                        token: token
+                        token: token,
+                        dados: {
+                            email: results[0].email // envia especificado também fora do token o usuário para facilitar a visualização no front
+                        }
                     })
                 }
                 // SE ERROU A SENHA
